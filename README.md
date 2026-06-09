@@ -34,7 +34,7 @@ Fluxo:
 - Azure Data Lake Storage (armazenamento de dados brutos)
 - Azure SQL Database (camada estruturada de dados)
 - SQL (transformação e consultas)
-- (Opcional) Power BI para visualização de dados
+- Power BI para visualização de dados
 
 ---
 
