@@ -1,81 +1,101 @@
-# ☁️ Pipeline de Dados na Azure
+# ☁️ Azure Data Platform (ETL + IaC)
 
-Projeto de engenharia de dados na nuvem utilizando serviços da Microsoft Azure para construção de um pipeline ETL (Extract, Transform, Load).
+Projeto de arquitetura de dados em ambiente Microsoft Azure, integrando pipeline de dados (ETL) e automação de infraestrutura como código (IaC) com PowerShell DSC.
 
 ---
 
 ## 🎯 Objetivo do Projeto
 
-Este projeto tem como objetivo simular um ambiente real de engenharia de dados, construindo um pipeline para ingestão, armazenamento, transformação e disponibilização de dados na cloud.
+Construir um ambiente cloud completo simulando uma plataforma de dados, incluindo:
 
-O foco é demonstrar habilidades em arquitetura de dados, integração de serviços Azure e modelagem de fluxo de dados.
+- Pipeline de dados (ETL)
+- Armazenamento e processamento em Azure
+- Automação de infraestrutura de servidor Windows
+- Configuração de serviços via infraestrutura como código
+
+O objetivo é demonstrar conceitos de engenharia de dados e cloud computing aplicados a um cenário real.
 
 ---
 
 ## 🏗️ Arquitetura da Solução
 
-O pipeline foi estruturado seguindo uma abordagem em camadas:
+O projeto é dividido em duas camadas principais:
 
-**Fonte de Dados → Ingestão → Armazenamento → Processamento → Consumo**
+### 📊 Camada de Dados (Data Platform)
+- Ingestão de dados
+- Armazenamento em Data Lake
+- Processamento e transformação
+- Carga em base estruturada (SQL)
+- Preparação para análise
 
-Fluxo:
-
-1. Ingestão de dados brutos
-2. Armazenamento em Data Lake
-3. Processamento e transformação dos dados
-4. Carga em banco estruturado
-5. Disponibilização para análise
+### 🖥️ Camada de Infraestrutura (IaC)
+- Provisionamento de VM Windows
+- Instalação e configuração automática de IIS (Web Server)
+- Garantia de serviços ativos via DSC (Desired State Configuration)
 
 ---
 
 ## ⚙️ Tecnologias Utilizadas
 
-- Microsoft Azure Data Factory (orquestração do pipeline)
-- Azure Data Lake Storage (armazenamento de dados brutos)
-- Azure SQL Database (camada estruturada de dados)
-- SQL (transformação e consultas)
-- Power BI para visualização de dados
+### Cloud & Data
+- Microsoft Azure Data Factory
+- Azure Data Lake Storage
+- Azure SQL Database
+- SQL
+
+### Infraestrutura como Código (IaC)
+- PowerShell DSC
+- Windows Server
+- IIS (Web Server)
 
 ---
 
-## 🔄 Etapas do Pipeline
+## 🔄 Pipeline de Dados (ETL)
 
-### 1. Ingestão de Dados
-Os dados são coletados e ingeridos utilizando Azure Data Factory.
-
-### 2. Armazenamento Raw
-Os dados são armazenados em estado bruto no Azure Data Lake Storage.
-
-### 3. Processamento
-Os dados passam por tratamento, limpeza e transformação utilizando SQL e/ou Data Factory.
-
-### 4. Camada Estruturada
-Os dados processados são carregados no Azure SQL Database para consulta e modelagem.
-
-### 5. Consumo
-Os dados ficam disponíveis para análise, relatórios ou dashboards.
+1. Ingestão de dados na Azure
+2. Armazenamento em Data Lake (camada raw)
+3. Transformação dos dados
+4. Carga em banco relacional (Azure SQL)
+5. Disponibilização para consumo analítico
 
 ---
 
-## 📊 Resultado do Projeto
+## 🖥️ Automação de Infraestrutura
 
-- Pipeline de dados funcional em ambiente cloud
-- Separação de camadas (raw / processed / curated)
-- Integração entre serviços Azure
-- Base estruturada para análise e BI
+Foi utilizado PowerShell DSC para garantir estado desejado da máquina:
 
----
-
-## 💡 Aprendizados
-
-- Conceitos de engenharia de dados em ambiente cloud
-- Orquestração de pipelines com Azure Data Factory
-- Armazenamento e organização de dados em Data Lake
-- Integração entre serviços de dados na Azure
-- Noções de arquitetura de dados moderna
+- Instalação automática do IIS (Web Server)
+- Configuração do serviço w3svc
+- Inicialização automática do serviço
+- Garantia de consistência da infraestrutura
 
 ---
 
-## 👨‍💻 Autor
+### 🔧 Script DSC utilizado
 
-Desenvolvido por Yuri Ventura como projeto prático de estudos em Engenharia de Dados e Cloud Computing com Microsoft Azure.
+```powershell id="dsc-script"
+configuration ConfigureVM
+{
+    param (
+        [string[]]$NodeName = 'localhost'
+    )
+
+    Node $NodeName
+    {
+        WindowsFeature IIS
+        {
+            Name = "Web-Server"
+            Ensure = "Present"
+        }
+
+        Service IISService
+        {
+            Name = "w3svc"
+            StartupType = "Automatic"
+            State = "Running"
+            DependsOn = "[WindowsFeature]IIS"
+        }
+    }
+}
+
+ConfigureVM -OutputPath "C:\DSC\ConfigureVM"
